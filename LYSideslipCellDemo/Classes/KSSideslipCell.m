@@ -8,8 +8,10 @@
 
 #import "KSSideslipCell.h"
 #import "KSSideslipCellProxy.h"
-#import <objc/runtime.h>
+#import "UITableView+KSSideslipCell.h"
+#import "KSSideslipCellAction.h"
 #import "KSSideslipContainerView.h"
+#import "KSSideslipConfirmActionView.h"
 
 CGFloat KS_getX(UIView *v){
     return v.frame.origin.x;
@@ -32,54 +34,9 @@ void KS_setW(UIView *v,CGFloat w){
 };
 
 
-//            <#     一些私有属性的扩展      #>
-@interface UITableView ()
-@property (nonatomic) KTSideslipCellProxy *sideslipCellProxy;
-@property (nonatomic) BOOL sideslip;
-@end
+ 
 
-@interface KSSideslipContainerView()
-@property (nonatomic,weak) id targetCell;
-@end
-
-
-@interface KSSideslipCellAction ()
-@property (nonatomic, copy) void (^handler)(KSSideslipCellAction *action, NSIndexPath *indexPath);
-@property (nonatomic, assign) KSSideslipCellActionStyle style;
-
-@end
-@implementation KSSideslipCellAction
-+ (instancetype)rowActionWithStyle:(KSSideslipCellActionStyle)style title:(NSString *)title handler:(void (^)(KSSideslipCellAction *action, NSIndexPath *indexPath))handler {
-    
-    KSSideslipCellAction *action = [KSSideslipCellAction new];
-    action.title = title;
-    action.handler = handler;
-    action.style = style;
-    action.fontSize = 17;
-    action.titleColor = [UIColor whiteColor];
-    switch (style) {
-        case KSSideslipCellActionStyleDefault:
-        {
-            action.backgroundColor = [UIColor redColor];
-        }
-            break;
-        case KSSideslipCellActionStyleNormal:
-        {
-            action.backgroundColor = [UIColor colorWithRed:200/255.0 green:199/255.0 blue:205/255.0 alpha:1];
-        }
-            break;
-            
-        default:
-            break;
-    }
-    
-    return action;
-}
-
-- (CGFloat)margin {
-    return _margin == 0 ? 15 : _margin;
-}
-@end
+ 
 
 
 
@@ -87,18 +44,7 @@ void KS_setW(UIView *v,CGFloat w){
 
 
 
-typedef NS_ENUM(NSInteger, KSSideslipCellState) {
-    KSSideslipCellStateNormal,
-    KSSideslipCellStateAnimating,
-    KSSideslipCellStateOpen
-};
-
-@interface KSSideslipCell () <UIGestureRecognizerDelegate>
-@property (nonatomic) BOOL sideslip; //当前cell的侧滑是否被展示中
-@property (nonatomic) KSSideslipCellState state; //当前cell的状态
-@property (nonatomic) UIView *nextShowView;//点击侧滑按钮后，若有需要持有用户返回的新View
-@property (nonatomic) NSArray <KSSideslipCellAction *>* actions;
-@end
+ 
 
 @implementation KSSideslipCell
 
@@ -195,8 +141,8 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
         if (!shouldBegin) return NO;
         
         // 询问代理是否需要侧滑
-        if ([_delegate respondsToSelector:@selector(sideslipCell:canSideslipRowAtIndexPath:)]) {
-            shouldBegin = [_delegate sideslipCell:self canSideslipRowAtIndexPath:self.indexPath] || _sideslip;
+        if ([_delegate respondsToSelector:@selector(sideslipCell:canSideslipActionAtIndexPath:)]) {
+            shouldBegin = [_delegate sideslipCell:self canSideslipActionAtIndexPath:self.indexPath] || _sideslip;
         }
         
         if (shouldBegin) {
@@ -223,9 +169,9 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
     UIGestureRecognizerState state = pan.state;
     [pan setTranslation:CGPointZero inView:pan.view];
     
-    if (_nextShowView) {
-        [_nextShowView removeFromSuperview];
-        _nextShowView = nil;
+    if (self.confirmActionView) {
+        [self.confirmActionView removeFromSuperview];
+        self.confirmActionView = nil;
         //这里防止有手贱党，在0.2s动画执行完之前又开始滑动
         [_btnContainView.subButtons setValue:@(NO) forKeyPath:@"hidden"];
     }
@@ -280,48 +226,60 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
     }
 }
 
+
+
 - (void)actionBtnDidClicked:(UIButton *)btn {
-    if (_nextShowView) {
-        [_nextShowView removeFromSuperview];
-        _nextShowView = nil;
+    if (self.confirmActionView) {
+        [self.confirmActionView removeFromSuperview];
+        self.confirmActionView = nil;
     }
     
-    if ([self.delegate respondsToSelector:@selector(sideslipCell:rowAtIndexPath:didSelectedAtIndex:)]) {
+    if ([self.delegate respondsToSelector:@selector(sideslipCell:confirmActionAtIndexPath:forAction:)]) {
         
-        _nextShowView = [self.delegate sideslipCell:self rowAtIndexPath:self.indexPath didSelectedAtIndex:btn.tag];
-        
-        /**
-            如果有需要继续展示的View--一般是确认删除?
-            这里会将其覆盖到侧滑容器上，并且重新以新的View作为基础进行布局
-         */
-        if (_nextShowView) {
+        if (self.actions.count > 0) {
+            KSSideslipCellAction *forAction = self.actions[btn.tag];
+            KSSideslipCellAction *confirmAction= [self.delegate sideslipCell:self confirmActionAtIndexPath:self.indexPath forAction:forAction];
             
-            [_btnContainView addSubview:_nextShowView];
-            CGRect frame = CGRectMake(0, 0, _nextShowView.frame.size.width, self.contentView.frame.size.height);
-
-            _nextShowView.frame = CGRectMake(self.btnContainView.originSubViews.lastObject.frame.origin.x,
-                                             0,
-                                             _nextShowView.frame.size.width,
-                                             self.contentView.frame.size.height);
-            _nextShowView.hidden = YES;
+            if(confirmAction){
+                CGFloat confirmActionViewWidth = [confirmAction actonViewWidth];
+                CGFloat confirmActionViewHeight = self.contentView.frame.size.height;
+                
+                KSSideslipConfirmActionView *confirmActionView = [[KSSideslipConfirmActionView alloc] init];
+                confirmActionView.action = confirmAction;
+                confirmActionView.targetCell = self;
+                confirmActionView.frame = CGRectMake(0, 0, confirmActionViewWidth, confirmActionViewHeight);
+                
+                self.confirmActionView = confirmActionView ;
+               [_btnContainView addSubview:self.confirmActionView];
+                
+               CGRect frame = CGRectMake(0, 0, self.confirmActionView.frame.size.width, self.contentView.frame.size.height);
+   
+               self.confirmActionView.frame = CGRectMake(self.btnContainView.originSubViews.lastObject.frame.origin.x,
+                                                0,
+                                                self.confirmActionView.frame.size.width,
+                                                self.contentView.frame.size.height);
+              self.confirmActionView.hidden = YES;
+   
+               [UIView animateWithDuration:0.7 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:1 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
+                   self.confirmActionView.frame = frame;
+                   _btnContainView.frame = frame;
+                   self.confirmActionView.hidden = NO;
+                   [_btnContainView.subButtons setValue:@(YES) forKeyPath:@"hidden"];
+                   KS_setX(self.contentView, -KS_getW(self.confirmActionView));
+                   [self.btnContainView scaleToWidth:self.confirmActionView.frame.size.width];
+               } completion:^(BOOL finished) {
+                   [_btnContainView.subButtons setValue:@(NO) forKeyPath:@"hidden"];
+               }];
+                
+            }
             
-            [UIView animateWithDuration:0.7 delay:0 usingSpringWithDamping:0.7 initialSpringVelocity:1 options:UIViewAnimationOptionCurveEaseInOut|UIViewAnimationOptionAllowUserInteraction animations:^{
-                _nextShowView.frame = frame;
-                _btnContainView.frame = frame;
-                _nextShowView.hidden = NO;
-                [_btnContainView.subButtons setValue:@(YES) forKeyPath:@"hidden"];
-                KS_setX(self.contentView, -KS_getW(_nextShowView));
-                [self.btnContainView scaleToWidth:_nextShowView.frame.size.width];
-            } completion:^(BOOL finished) {
-                [_btnContainView.subButtons setValue:@(NO) forKeyPath:@"hidden"];
-            }];
         }
     }
     
     
     if (btn.tag < _actions.count) {
         KSSideslipCellAction *action = _actions[btn.tag];
-        if (_nextShowView == nil) { // 如果有确认 只执行确认按钮
+        if (self.confirmActionView == nil) { // 如果有确认 只执行确认按钮
             if (action.handler) {
                 action.handler(action, self.indexPath);
             }
@@ -330,6 +288,14 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
     }
     [self hiddenOtherSideslip];
 }
+
+- (void)confirmActionBtnClick:(UIButton *)btn{
+    if (self.confirmActionView && self.confirmActionView.action.handler) {
+        self.confirmActionView.action.handler(self.confirmActionView.action, self.indexPath);
+    }
+}
+
+
 
 #pragma mark - Methods
 - (void)hiddenWithBounceAnimation {
@@ -395,10 +361,10 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
 - (void)tryBindProxy {
     UITableView * tableView = [self tableView];
     if ([tableView isKindOfClass:[UITableView class]]) {
-        if (![tableView.delegate isKindOfClass:[KTSideslipCellProxy class]]) {
+        if (![tableView.delegate isKindOfClass:[KSSideslipCellProxy class]]) {
             
             //保证一个tableView只会设置一次proxy
-            KTSideslipCellProxy *proxy = [KTSideslipCellProxy alloc];
+            KSSideslipCellProxy *proxy = [KSSideslipCellProxy alloc];
             proxy.target = tableView; //这里。proxy的target是weak属性，并不会造成循环引用
         }
     }
@@ -446,7 +412,8 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
     }
     if ([view isKindOfClass:[UITableView class]]) {
         return view;
-    }else {
+    }
+    else {
         return nil;
     }
 }
@@ -459,44 +426,3 @@ typedef NS_ENUM(NSInteger, KSSideslipCellState) {
 
 
 
-@implementation UITableView (KSSideslipCell)
-#pragma mark - 隐藏扩展按钮
-
-- (void)hiddenOtherSideslip:(KSSideslipCell *)cell {
-    self.sideslip = NO;
-    for (KSSideslipCell *c in self.visibleCells) {
-        if (c == cell) {
-            self.sideslip = YES;
-        }else if ([c isKindOfClass:KSSideslipCell.class] && c.sideslip ) {
-            
-            [c hiddenSideslip];
-        }
-    }
-}
-
-- (void)hiddenAllSideslip {
-    self.sideslip = NO;
-    for (KSSideslipCell *cell in self.visibleCells) {
-        if ([cell isKindOfClass:KSSideslipCell.class] && cell.sideslip) {
-            [cell hiddenSideslip];
-        }
-    }
-}
-
-
--(void)setSideslipCellProxy:(KTSideslipCellProxy *)sideslipCellProxy{
-    objc_setAssociatedObject(self, @selector(sideslipCellProxy), sideslipCellProxy, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-}
-
--(KTSideslipCellProxy *)sideslipCellProxy{
-    return objc_getAssociatedObject(self, _cmd);
-}
-
-- (void)setSideslip:(BOOL)sideslip {
-    objc_setAssociatedObject(self, @selector(sideslip), [NSNumber numberWithBool:sideslip], OBJC_ASSOCIATION_ASSIGN);
-}
-
-- (BOOL)sideslip {
-    return [objc_getAssociatedObject(self, _cmd) boolValue];
-}
-@end

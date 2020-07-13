@@ -7,6 +7,9 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0020CBCB24BC13AD006D4D21 /* KSSideslipCellAction.m in Sources */ = {isa = PBXBuildFile; fileRef = 0020CBCA24BC13AD006D4D21 /* KSSideslipCellAction.m */; };
+		0020CBCE24BC14DC006D4D21 /* UITableView+KSSideslipCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 0020CBCD24BC14DC006D4D21 /* UITableView+KSSideslipCell.m */; };
+		0020CBD424BC314F006D4D21 /* KSSideslipConfirmActionView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0020CBD324BC314F006D4D21 /* KSSideslipConfirmActionView.m */; };
 		00DDB86924B856850056C823 /* KSSideslipContainerView.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DDB86324B856850056C823 /* KSSideslipContainerView.m */; };
 		00DDB86A24B856850056C823 /* KSSideslipCellProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DDB86524B856850056C823 /* KSSideslipCellProxy.m */; };
 		00DDB86B24B856850056C823 /* KSSideslipCell.m in Sources */ = {isa = PBXBuildFile; fileRef = 00DDB86724B856850056C823 /* KSSideslipCell.m */; };
@@ -25,6 +28,13 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
+		0020CBC824BC136B006D4D21 /* KSSlideslipDefine.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KSSlideslipDefine.h; sourceTree = "<group>"; };
+		0020CBC924BC13AD006D4D21 /* KSSideslipCellAction.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KSSideslipCellAction.h; sourceTree = "<group>"; };
+		0020CBCA24BC13AD006D4D21 /* KSSideslipCellAction.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KSSideslipCellAction.m; sourceTree = "<group>"; };
+		0020CBCC24BC14DC006D4D21 /* UITableView+KSSideslipCell.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = "UITableView+KSSideslipCell.h"; sourceTree = "<group>"; };
+		0020CBCD24BC14DC006D4D21 /* UITableView+KSSideslipCell.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = "UITableView+KSSideslipCell.m"; sourceTree = "<group>"; };
+		0020CBD224BC314F006D4D21 /* KSSideslipConfirmActionView.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = KSSideslipConfirmActionView.h; sourceTree = "<group>"; };
+		0020CBD324BC314F006D4D21 /* KSSideslipConfirmActionView.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = KSSideslipConfirmActionView.m; sourceTree = "<group>"; };
 		00DDB86324B856850056C823 /* KSSideslipContainerView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSSideslipContainerView.m; sourceTree = "<group>"; };
 		00DDB86424B856850056C823 /* KSSideslipCell.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KSSideslipCell.h; sourceTree = "<group>"; };
 		00DDB86524B856850056C823 /* KSSideslipCellProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KSSideslipCellProxy.m; sourceTree = "<group>"; };
@@ -69,12 +79,19 @@
 		00DDB86224B856850056C823 /* Classes */ = {
 			isa = PBXGroup;
 			children = (
+				0020CBC824BC136B006D4D21 /* KSSlideslipDefine.h */,
+				0020CBC924BC13AD006D4D21 /* KSSideslipCellAction.h */,
+				0020CBCA24BC13AD006D4D21 /* KSSideslipCellAction.m */,
+				00DDB86624B856850056C823 /* KSSideslipContainerView.h */,
+				00DDB86324B856850056C823 /* KSSideslipContainerView.m */,
+				0020CBD224BC314F006D4D21 /* KSSideslipConfirmActionView.h */,
+				0020CBD324BC314F006D4D21 /* KSSideslipConfirmActionView.m */,
 				00DDB86424B856850056C823 /* KSSideslipCell.h */,
 				00DDB86724B856850056C823 /* KSSideslipCell.m */,
 				00DDB86824B856850056C823 /* KSSideslipCellProxy.h */,
 				00DDB86524B856850056C823 /* KSSideslipCellProxy.m */,
-				00DDB86624B856850056C823 /* KSSideslipContainerView.h */,
-				00DDB86324B856850056C823 /* KSSideslipContainerView.m */,
+				0020CBCC24BC14DC006D4D21 /* UITableView+KSSideslipCell.h */,
+				0020CBCD24BC14DC006D4D21 /* UITableView+KSSideslipCell.m */,
 			);
 			path = Classes;
 			sourceTree = SOURCE_ROOT;
@@ -234,11 +251,14 @@
 				BF8C56471D34981B0003550C /* LYHomeCellModel.m in Sources */,
 				BF8C56431D34981B0003550C /* LYContactViewController.m in Sources */,
 				BF8C56481D34981B0003550C /* LYHomeViewController.m in Sources */,
+				0020CBD424BC314F006D4D21 /* KSSideslipConfirmActionView.m in Sources */,
 				00DDB86B24B856850056C823 /* KSSideslipCell.m in Sources */,
+				0020CBCB24BC13AD006D4D21 /* KSSideslipCellAction.m in Sources */,
 				BF8C56441D34981B0003550C /* LYFavoriteCell.m in Sources */,
 				BF8C561F1D3497F30003550C /* AppDelegate.m in Sources */,
 				BF8C56461D34981B0003550C /* LYHomeCell.m in Sources */,
 				BF8C561C1D3497F30003550C /* main.m in Sources */,
+				0020CBCE24BC14DC006D4D21 /* UITableView+KSSideslipCell.m in Sources */,
 				BF8C56421D34981B0003550C /* LYContactCell.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;

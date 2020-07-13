@@ -8,6 +8,7 @@
 
 #import "LYContactViewController.h"
 #import "LYContactCell.h"
+#import "KSSideslipCellAction.h"
 
 @interface LYContactViewController () <KSSideslipCellDelegate>
 @property (nonatomic, strong) NSArray *titles;

@@ -8,13 +8,8 @@
 
 
 #import <UIKit/UIKit.h>
-
-@class KSSideslipCellAction;
-
-NS_ASSUME_NONNULL_BEGIN
-
-
-
+#import "KSSideslipCellAction.h"
+ 
 /**
     侧滑容器View
  */
@@ -32,6 +27,7 @@ NS_ASSUME_NONNULL_BEGIN
  */
 @property (nonatomic,readonly) NSArray<UIButton *> *subButtons;
 @property (nonatomic,readonly) NSArray<UIView *> *originSubViews;
+@property (nonatomic,weak) id targetCell;
 /**
      创建操作用View
 
@@ -45,7 +41,6 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)restoration; //复原
 
-
 /**
  将View以拉伸的方式形变到某个长度
 
@@ -53,5 +48,4 @@ NS_ASSUME_NONNULL_BEGIN
  */
 - (void)scaleToWidth:(CGFloat)width;
 @end
-
-NS_ASSUME_NONNULL_END
+ 

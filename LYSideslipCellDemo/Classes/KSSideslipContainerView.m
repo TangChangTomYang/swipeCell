@@ -9,12 +9,13 @@
 #import "KSSideslipCell.h"
 
 @interface KSSideslipContainerView()
+
 @property (nonatomic) NSMutableArray<NSNumber *> *originWidths;
 @property (nonatomic,readwrite) NSArray<UIView *> *originSubViews; //这里，由于外部有可能会追加一些确认删除等等按钮。不能单独判断self.subViews
 @property (nonatomic,readwrite) NSArray<UIButton *> *subButtons;
-@property (nonatomic) CGFloat currentSubViewHeight;
-@property (nonatomic,weak) id targetCell; //这个属性会在cell中被调用，但是不对外开放
+@property (nonatomic) CGFloat currentSubViewHeight; 
 @end
+
 
 @implementation KSSideslipContainerView
 
@@ -37,11 +38,12 @@
     self = [super init];
     if (self) {
         for (int i = 0; i < actions.count; i++) {
+            
             KSSideslipCellAction *action = actions[i];
+            
             UIView * btnBgView = [[UIView alloc]init];
             UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
             btn.adjustsImageWhenHighlighted = NO;
-            
             [btn setTitle:action.title forState:UIControlStateNormal];
             
             if (action.backgroundColor) btnBgView.backgroundColor = action.backgroundColor;
@@ -66,6 +68,9 @@
             
             
             [btnBgView addSubview:btn];
+            
+            
+            
             [self addSubview:btnBgView];
         }
 

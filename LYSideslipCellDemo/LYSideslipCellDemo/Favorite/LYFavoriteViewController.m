@@ -8,6 +8,7 @@
 
 #import "LYFavoriteViewController.h"
 #import "LYFavoriteCell.h"
+#import "KSSideslipCellAction.h"
 
 @interface LYFavoriteViewController () <KSSideslipCellDelegate>
 

@@ -9,6 +9,7 @@
 #import "LYHomeViewController.h"
 #import "KSSideslipCell.h"
 #import "LYHomeCell.h"
+#import "KSSideslipCellAction.h"
 
 #define kIcon @"kIcon"
 #define kName @"kName"
@@ -70,16 +71,7 @@
     return cell;
 }
 
-//- (void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath {
-//    cell.preservesSuperviewLayoutMargins = NO;
-//    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
-//        [cell setSeparatorInset:UIEdgeInsetsMake(0, 10, 0, 0)];
-//    }
-//
-//    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
-//        [cell setLayoutMargins:UIEdgeInsetsMake(0, 10, 0, 0)];
-//    }
-//}
+ 
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
@@ -89,6 +81,11 @@
 
 
 #pragma mark - KSSideslipCellDelegate
+
+- (BOOL)sideslipCell:(KSSideslipCell *)sideslipCell canSideslipActionAtIndexPath:(NSIndexPath *)indexPath {
+    return (indexPath.row >= 2);
+}
+
 - (NSArray<KSSideslipCellAction *> *)sideslipCell:(KSSideslipCell *)sideslipCell
                      editActionsForRowAtIndexPath:(NSIndexPath *)indexPath {
     
@@ -116,56 +113,43 @@
         NSLog(@"置顶");
         [sideslipCell hiddenAllSideslip];
     }];
-    
-    NSArray *array = @[];
-    switch (model.messageType) {
-        case LYHomeCellTypeMessage:
-            array = @[action2];
-            break;
-        case LYHomeCellTypeSubscription:
-            array = @[action1, action2];
-            break;
-        case LYHomeCellTypePubliction:
-            array = @[action3, action2];
-            break;
-        default:
-            break;
-    }
-    return array;
-}
-
-- (BOOL)sideslipCell:(KSSideslipCell *)sideslipCell canSideslipRowAtIndexPath:(NSIndexPath *)indexPath {
-    return (indexPath.row != 2);
+    return @[action1, action2, action3];
+     
 }
 
 
 
-- (UIView *)sideslipCell:(KSSideslipCell *)sideslipCell rowAtIndexPath:(NSIndexPath *)indexPath didSelectedAtIndex:(NSInteger)index {
-    
-    if (indexPath.row > 5) {
-        self.indexPath = indexPath;
 
-        UIButton * view =[[UIButton alloc]initWithFrame:CGRectMake(0, 0, 135, 0)];
-        view.titleLabel.textAlignment = NSTextAlignmentCenter;
-        view.titleLabel.font = [UIFont systemFontOfSize:17];
-        [view setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [view setTitle:@"确认删除dfsfddfasdfadsf" forState:UIControlStateNormal];
-        view.backgroundColor = [UIColor redColor];
-        [view addTarget:self action:@selector(delBtnClick) forControlEvents:UIControlEventTouchUpInside];
-        return view;
-    }
-    else{
-        return nil;
+- (KSSideslipCellAction *)sideslipCell:(KSSideslipCell *)sideslipCell confirmActionAtIndexPath:(NSIndexPath *)indexPath forAction:(KSSideslipCellAction *)action{
+    if ([action.title isEqualToString:@"取消关注"]) {
+        KSSideslipCellAction *action = [KSSideslipCellAction rowActionWithStyle:KSSideslipCellActionStyleNormal
+                                                                              title:@"确认 取消关注"
+                                                                            handler:^(KSSideslipCellAction * _Nonnull action,
+                                                                                      NSIndexPath * _Nonnull actionIndexPath) {
+            NSLog(@"-----确认 取消关注 被点击了: indexRow:%ld- ", actionIndexPath.row);
+            [_dataArray removeObjectAtIndex:actionIndexPath.row];
+            [self.tableView deleteRowsAtIndexPaths:@[actionIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+        }];
+        
+        return action;
     }
     
-    
+    if ([action.title isEqualToString:@"删除"]) {
+           KSSideslipCellAction *action = [KSSideslipCellAction rowActionWithStyle:KSSideslipCellActionStyleDestructive
+                                                                                 title:@"确认 删除"
+                                                                               handler:^(KSSideslipCellAction * _Nonnull action,
+                                                                                         NSIndexPath * _Nonnull actionIndexPath) {
+               NSLog(@"-----确认 删除 被点击了: indexRow:%ld- ", actionIndexPath.row);
+               [_dataArray removeObjectAtIndex:actionIndexPath.row];
+               [self.tableView deleteRowsAtIndexPaths:@[actionIndexPath] withRowAnimation:UITableViewRowAnimationFade];
+           }];
+           
+           return action;
+       }
+    return nil;
 }
 
-- (void)delBtnClick {
-    [_dataArray removeObjectAtIndex:self.indexPath.row];
-    [self.tableView deleteRowsAtIndexPaths:@[self.indexPath] withRowAnimation:UITableViewRowAnimationFade];
-    
-     NSLog(@" 点击了  确认 删除");
-}
+
+
 
 @end

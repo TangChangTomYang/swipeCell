@@ -8,23 +8,17 @@
 
 #import "KSSideslipCellProxy.h"
 #import "KSSideslipCell.h"
+#import "UITableView+KSSideslipCell.h"
 
-@interface UITableView ()
-@property (nonatomic) BOOL sideslip;
-@property (nonatomic) KTSideslipCellProxy *sideslipCellProxy;
-@end
+ 
+ 
 
-@interface KSSideslipCell () <UIGestureRecognizerDelegate>
-@property (nonatomic, assign) BOOL sideslip;
-@end
-
-
-@interface KTSideslipCellProxy()
+@interface KSSideslipCellProxy()
 @property (nonatomic,weak) id<UIScrollViewDelegate,UITableViewDelegate> tbDelegate;
 @property (nonatomic,weak) id<UITableViewDataSource> tbDataSource;
 @end
 
-@implementation KTSideslipCellProxy
+@implementation KSSideslipCellProxy
 
 - (BOOL)respondsToSelector:(SEL)aSelector {
     if (aSelector == @selector(scrollViewWillBeginDragging:) || aSelector == @selector(tableView:didSelectRowAtIndexPath:)) {
@@ -35,7 +29,7 @@
 }
 
 - (BOOL)isKindOfClass:(Class)aClass {
-    if ([NSStringFromClass(aClass) isEqualToString:@"KTSideslipCellProxy"]) {
+    if ([NSStringFromClass(aClass) isEqualToString:@"KSSideslipCellProxy"]) {
         return YES;
     }else {
         return NO;
